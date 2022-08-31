@@ -8,39 +8,49 @@ Replace code below according to your needs.
 """
 from typing import TYPE_CHECKING
 
-from magicgui import magic_factory
-from qtpy.QtWidgets import QHBoxLayout, QPushButton, QWidget
+from magicgui import magicgui
+from merge_stardist_masks.naive_fusion import naive_fusion_isotropic_grid
+from napari.layers import Labels
+from qtpy.QtWidgets import QWidget
 
 if TYPE_CHECKING:
     import napari
 
 
-class ExampleQWidget(QWidget):
-    # your QWidget.__init__ can optionally request the napari viewer instance
-    # in one of two ways:
-    # 1. use a parameter called `napari_viewer`, as done here
-    # 2. use a type annotation of 'napari.viewer.Viewer' for any parameter
+@magicgui
+def run_naive_fusion(
+    dists: "napari.types.ImageData",
+    probs: "napari.types.ImageData",
+    prob_thresh: float = 0.65,
+    no_slicing: bool = False,
+    max_full_overlaps: int = 50,
+    erase_probs_at_full_overlap: bool = False,
+    show_overlaps: bool = False,
+) -> "napari.layers.Labels":
+    lbl = naive_fusion_isotropic_grid(
+        dists.transpose(1, 2, 0),
+        probs,
+        None,
+        prob_thresh,
+        grid=1,
+        max_full_overlaps=50,
+    )
+    return Labels(lbl, name="Merge StarDist Masks")
+
+
+class MergeStarDistMasksWidget(QWidget):
     def __init__(self, napari_viewer):
         super().__init__()
         self.viewer = napari_viewer
 
-        btn = QPushButton("Click me!")
-        btn.clicked.connect(self._on_click)
+        _, w = self.viewer.window.add_plugin_dock_widget(
+            "stardist-napari", "StarDist"
+        )
+        w.prob_thresh.value = 1.0
+        w.cnn_output.value = True
 
-        self.setLayout(QHBoxLayout())
-        self.layout().addWidget(btn)
-
-    def _on_click(self):
-        print("napari has", len(self.viewer.layers), "layers")
-
-
-@magic_factory
-def example_magic_widget(img_layer: "napari.layers.Image"):
-    print(f"you have selected {img_layer}")
-
-
-# Uses the `autogenerate: true` flag in the plugin manifest
-# to indicate it should be wrapped as a magicgui to autogenerate
-# a widget.
-def example_function_widget(img_layer: "napari.layers.Image"):
-    print(f"you have selected {img_layer}")
+        self.viewer.window.add_dock_widget(
+            run_naive_fusion,
+        )
+        # self.setLayout(QHBoxLayout())
+        # self.layout().addWidget(run_naive_fusion)

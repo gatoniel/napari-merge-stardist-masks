@@ -5,24 +5,13 @@ contributions:
     - id: napari-merge-stardist-masks.make_sample_data
       python_name: napari_merge_stardist_masks._sample_data:make_sample_data
       title: Load sample data from Merge StarDist Masks
-    - id: napari-merge-stardist-masks.make_qwidget
-      python_name: napari_merge_stardist_masks._widget:ExampleQWidget
-      title: Make example QWidget
-    - id: napari-merge-stardist-masks.make_magic_widget
-      python_name: napari_merge_stardist_masks._widget:example_magic_widget
-      title: Make example magic widget
-    - id: napari-merge-stardist-masks.make_func_widget
-      python_name: napari_merge_stardist_masks._widget:example_function_widget
-      title: Make example function widget
+    - id: napari-merge-stardist-masks.merge_stardist_masks_widget
+      python_name: napari_merge_stardist_masks._widget:MergeStarDistMasksWidget
+      title: Merge StarDist Masks
   sample_data:
     - command: napari-merge-stardist-masks.make_sample_data
       display_name: Merge StarDist Masks
       key: unique_id.1
   widgets:
-    - command: napari-merge-stardist-masks.make_qwidget
-      display_name: Example QWidget
-    - command: napari-merge-stardist-masks.make_magic_widget
-      display_name: Example Magic Widget
-    - command: napari-merge-stardist-masks.make_func_widget
-      autogenerate: true
-      display_name: Example Function Widget
+    - command: napari-merge-stardist-masks.merge_stardist_masks_widget
+      display_name: Merge StarDist Masks
