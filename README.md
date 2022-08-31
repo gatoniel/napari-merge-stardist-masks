@@ -21,6 +21,15 @@ and review the napari docs for plugin developers:
 https://napari.org/stable/plugins/index.html
 -->
 
+
+## Run
+
+In PowerShell, when you do not have sufficient GPU support, run napari without CUDA support, i.e.,:
+```
+$env:CUDA_VISIBLE_DEVICES=-1; napari
+```
+
+
 ## Installation
 
 You can install `napari-merge-stardist-masks` via [pip]:
