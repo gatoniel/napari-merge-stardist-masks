@@ -8,6 +8,7 @@ Replace code below according to your needs.
 """
 from typing import TYPE_CHECKING
 
+import numpy as np
 from magicgui import magicgui
 from merge_stardist_masks.naive_fusion import naive_fusion_isotropic_grid
 from napari.layers import Labels
@@ -21,20 +22,36 @@ if TYPE_CHECKING:
 def run_naive_fusion(
     dists: "napari.types.ImageData",
     probs: "napari.types.ImageData",
+    time: bool = False,
     prob_thresh: float = 0.65,
     no_slicing: bool = False,
     max_full_overlaps: int = 50,
     erase_probs_at_full_overlap: bool = False,
     show_overlaps: bool = False,
 ) -> "napari.layers.Labels":
-    lbl = naive_fusion_isotropic_grid(
-        dists.transpose(1, 2, 0),
-        probs,
-        None,
-        prob_thresh,
-        grid=1,
-        max_full_overlaps=50,
-    )
+    if time:
+        lbls = []
+        for i in range(dists.shape[1]):
+            lbls.append(
+                naive_fusion_isotropic_grid(
+                    dists[:, i, ...].transpose(1, 2, 0),
+                    probs[i, ...],
+                    None,
+                    prob_thresh,
+                    grid=1,
+                    max_full_overlaps=max_full_overlaps,
+                )
+            )
+        lbl = np.stack(lbls, axis=0)
+    else:
+        lbl = naive_fusion_isotropic_grid(
+            dists.transpose(1, 2, 0),
+            probs,
+            None,
+            prob_thresh,
+            grid=1,
+            max_full_overlaps=max_full_overlaps,
+        )
     return Labels(lbl, name="Merge StarDist Masks")
 
 
