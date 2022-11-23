@@ -23,6 +23,7 @@ def run_naive_fusion(
     dists: "napari.types.ImageData",
     probs: "napari.types.ImageData",
     time: bool = False,
+    subtract_dist: float = 0.5,
     prob_thresh: float = 0.65,
     no_slicing: bool = False,
     max_full_overlaps: int = 50,
@@ -34,23 +35,29 @@ def run_naive_fusion(
         for i in range(dists.shape[1]):
             lbls.append(
                 naive_fusion_isotropic_grid(
-                    dists[:, i, ...].transpose(1, 2, 0),
+                    dists[:, i, ...].transpose(1, 2, 0) - subtract_dist,
                     probs[i, ...],
                     None,
                     prob_thresh,
                     grid=1,
                     max_full_overlaps=max_full_overlaps,
+                    no_slicing=no_slicing,
+                    show_overlaps=show_overlaps,
+                    erase_probs_at_full_overlap=erase_probs_at_full_overlap,
                 )
             )
         lbl = np.stack(lbls, axis=0)
     else:
         lbl = naive_fusion_isotropic_grid(
-            dists.transpose(1, 2, 0),
+            dists.transpose(1, 2, 0) - subtract_dist,
             probs,
             None,
             prob_thresh,
             grid=1,
             max_full_overlaps=max_full_overlaps,
+            no_slicing=no_slicing,
+            show_overlaps=show_overlaps,
+            erase_probs_at_full_overlap=erase_probs_at_full_overlap,
         )
     return Labels(lbl, name="Merge StarDist Masks")
 
