@@ -6,11 +6,13 @@ see: https://napari.org/stable/plugins/guides.html?#widgets
 
 Replace code below according to your needs.
 """
+from pathlib import Path
 from typing import TYPE_CHECKING
 
 import numpy as np
 from magicgui import magicgui
-from merge_stardist_masks.naive_fusion import naive_fusion_isotropic_grid
+from merge_stardist_masks.naive_fusion import naive_fusion
+from merge_stardist_masks.utils import grid_from_path, rays_from_path
 from napari.layers import Labels
 from qtpy.QtWidgets import QWidget
 
@@ -20,6 +22,7 @@ if TYPE_CHECKING:
 
 @magicgui
 def run_naive_fusion(
+    model_path: Path,
     dists: "napari.types.ImageData",
     probs: "napari.types.ImageData",
     time: bool = False,
@@ -30,16 +33,23 @@ def run_naive_fusion(
     erase_probs_at_full_overlap: bool = False,
     show_overlaps: bool = False,
 ) -> "napari.layers.Labels":
+    grid = grid_from_path(str(model_path))
     if time:
         lbls = []
+        if probs.ndim == 4:
+            rays = rays_from_path(str(model_path))
+            _transpose = (1, 2, 3, 0)
+        else:
+            rays = None
+            _transpose = (1, 2, 0)
         for i in range(dists.shape[1]):
             lbls.append(
-                naive_fusion_isotropic_grid(
-                    dists[:, i, ...].transpose(1, 2, 0) - subtract_dist,
+                naive_fusion(
+                    dists[:, i, ...].transpose(*_transpose) - subtract_dist,
                     probs[i, ...],
-                    None,
+                    rays,
                     prob_thresh,
-                    grid=1,
+                    grid=grid,
                     max_full_overlaps=max_full_overlaps,
                     no_slicing=no_slicing,
                     show_overlaps=show_overlaps,
@@ -48,12 +58,18 @@ def run_naive_fusion(
             )
         lbl = np.stack(lbls, axis=0)
     else:
-        lbl = naive_fusion_isotropic_grid(
-            dists.transpose(1, 2, 0) - subtract_dist,
+        if probs.ndim == 3:
+            rays = rays_from_path(str(model_path))
+            _transpose = (1, 2, 3, 0)
+        else:
+            rays = None
+            _transpose = (1, 2, 0)
+        lbl = naive_fusion(
+            dists.transpose(*_transpose) - subtract_dist,
             probs,
-            None,
+            rays,
             prob_thresh,
-            grid=1,
+            grid=grid,
             max_full_overlaps=max_full_overlaps,
             no_slicing=no_slicing,
             show_overlaps=show_overlaps,
@@ -72,6 +88,7 @@ class MergeStarDistMasksWidget(QWidget):
         )
         w.prob_thresh.value = 1.0
         w.cnn_output.value = True
+        w.output_type.value = "Label Image"
 
         self.viewer.window.add_dock_widget(
             run_naive_fusion,
