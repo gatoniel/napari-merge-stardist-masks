@@ -75,10 +75,10 @@ def run_naive_fusion(
             show_overlaps=show_overlaps,
             erase_probs_at_full_overlap=erase_probs_at_full_overlap,
         )
-    return Labels(lbl, name="Merge StarDist Masks")
+    return Labels(lbl, name="StarDist OPP")
 
 
-class MergeStarDistMasksWidget(QWidget):
+class StarDistOPPWidget(QWidget):
     def __init__(self, napari_viewer):
         super().__init__()
         self.viewer = napari_viewer
