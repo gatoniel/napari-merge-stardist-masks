@@ -1,0 +1,3 @@
+# Trained StarDist models
+
+These folders are created by the StarDist library when training a new model. They contain the configuration (`config.json`) and the weights (`weights_best.h5`) of the model. We trained several replicate models where the model number was used for seeding the random number generators that are required for the initialization and training process of the networks. The models with numbers 6, 7, 8, 10, and 12 were trained successfully and gave segmentation predictions successfully. For other models we encountered an unresolved python error similar to https://github.com/stardist/stardist/issues/68 .

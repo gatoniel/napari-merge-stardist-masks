@@ -1,5 +1,6 @@
 include LICENSE
 include README.md
+include src/napari_merge_stardist_masks/data/biofilm_1_cropped_again_raw.tif
 
 recursive-exclude * __pycache__
 recursive-exclude * *.py[co]
