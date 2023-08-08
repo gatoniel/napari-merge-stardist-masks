@@ -21,4 +21,7 @@ def stardist_opp_sample_data():
     ) as f:
         img = imread(f)
 
+    # original size (zyx = 129x129x129) is problematic
+    img = img[:, :128, :128]
+
     return [(img, dict(name="StarDist OPP sample data"))]
